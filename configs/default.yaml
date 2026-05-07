@@ -1,0 +1,84 @@
+project:
+  name: tennis_point_analyzer
+
+input:
+  video_path: data/raw_points/sample.mp4
+  point_id: auto
+
+output:
+  root_dir: outputs/runs
+  save_augmented_video: true
+  save_frame_csv: false
+  save_frame_json: true
+  save_events_csv: false
+  save_events_json: true
+  save_point_summary_csv: false
+  save_point_summary_json: true
+
+video:
+  max_frames: null        # set integer for quick debugging
+  process_every_n_frames: 1
+  output_fps: null        # null keeps source fps
+
+models:
+  player_detector:
+    backend: ultralytics  # ultralytics | none
+    weights: models/yolov8x.pt
+    conf: 0.35
+    classes: [0]          # COCO person
+  pose_estimator:
+    backend: ultralytics  # ultralytics | none
+    weights: models/yolov8x-pose.pt
+    conf: 0.15
+  ball_detector:
+    backend: ultralytics  # ultralytics | color | none
+    weights: models/ball_detector.pt    # used by ultralytics backend
+    conf: 0.15
+    # Color detector is only a simple baseline/debug option.
+    hsv_lower: [25, 40, 80]
+    hsv_upper: [90, 255, 255]
+    min_area: 4
+    max_area: 900
+
+court:
+  calibration_mode: manual_or_image
+  # Court mapping is optional in v0.1. If you know homography, place 3x3 matrix here.
+  homography: null
+  # Standard singles tennis court dimensions in meters, approximate coordinate reference.
+  length_m: 23.77
+  singles_width_m: 8.23
+  doubles_width_m: 10.97
+
+tracking:
+  max_missing_ball_frames: 8
+  ball_smoothing_window: 5
+  player_anchor: ankles_midpoint  # ankles_midpoint | hips_midpoint | bbox_bottom
+
+events:
+  hit:
+    enabled: true
+    wrist_ball_distance_px: 90
+    min_frame_gap: 8
+    velocity_change_weight: 0.4
+    toss_history_len: 8
+    toss_vy_threshold: -0.5
+    toss_region_y_ratio: 0.5
+  bounce:
+    enabled: true
+    min_frame_gap: 10
+    min_vertical_velocity_change: 2.0
+    net_region_y_ratio: 0.5
+    toss_history_len: 8
+    toss_vy_threshold: -0.3
+
+visualization:
+  draw_ball: true
+  draw_ball_trail: true
+  ball_trail_len: 10
+  draw_players: true
+  draw_pose: true
+  draw_player_trail: false
+  player_trail_len: 80
+  draw_events: true
+  draw_stats_overlay: true
+  draw_confidence: false

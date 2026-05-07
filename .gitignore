@@ -1,0 +1,23 @@
+# Ignore everything by default
+/*
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Source code and configs
+!/src/
+!/configs/
+!/scripts/
+
+# Custom model weights (small files)
+!/models/
+/models/*
+!/models/ball_detector.pt
+!/models/models--RJTPP--tennis-ball-detection/
+!/models/models--RJTPP--tennis-ball-detection/*
+
+# Project files
+!README.md
+!requirements.txt
+!.gitignore
